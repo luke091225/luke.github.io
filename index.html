@@ -1,41 +1,238 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset="UTF-8">
     <title>Luke.GitHub.io by luke091225</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Luke.GitHub.io</h1>
-        <p>test1</p>
+    <section class="page-header">
+      <h1 class="project-name">Luke.GitHub.io</h1>
+      <h2 class="project-tagline">configuring elasticsearch cluster</h2>
+      <a href="https://github.com/luke091225/luke.github.io" class="btn">View on GitHub</a>
+      <a href="https://github.com/luke091225/luke.github.io/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/luke091225/luke.github.io/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-        <p class="view"><a href="https://github.com/luke091225/luke.github.io">View the Project on GitHub <small>luke091225/luke.github.io</small></a></p>
+    <section class="main-content">
+      <p>h2. elasticsearch 설치</p>
 
+<p>h3. version</p>
 
-        <ul>
-          <li><a href="https://github.com/luke091225/luke.github.io/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/luke091225/luke.github.io/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/luke091225/luke.github.io">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <p>test123</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/luke091225">luke091225</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+<blockquote>
+<p>os : ubuntu 16.04.1-server-amd64
+elasticsearch : 2.3.1
+jdk : 8</p>
+</blockquote>
+
+<p>h3. openjdk 설치</p>
+
+<ul>
+<li>sudo apt-get update 실행</li>
+<li>sudo apt-get install openjdk-8-jre 실행</li>
+</ul>
+
+<p>h3. elasticsearch 설치</p>
+
+<ul>
+<li>apt-get 으로 설치하면 2.3 버전이 설치되지 않는다. 어떻게 해야 apt-get 으로 2.3을 설치할 수 있는지 잘 모르겠음</li>
+<li>아래 명령을 실행 하여 다운로드
+<pre>
+wget <a href="https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb">https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb</a>
+</pre>
+</li>
+<li>sudo dpkg -i elasticsearch-2.3.1.deb 실행 </li>
+<li>이렇게 설치하면 설정파일 권한을 설정해 줘야한다.
+&gt; * su 실행
+&gt; * chmod -R 755 /etc/elasticsearch
+&gt; * exit 실행
+&gt; * sudo chmod -x /etc/elasticseearch/elasticsearch.yml
+&gt; * sudo chmod -x /etc/elasticseearch/logging.yml</li>
+<li>설정파일을 심볼릭링크 걸어줘야한다.
+&gt; * sudo ln -s /etc/elasticsearch /usr/share/elasticsearch/config 실행</li>
+</ul>
+
+<p>h2. elasticsearch 설정</p>
+
+<p>h3. 기본 설정</p>
+
+<ul>
+<li>
+<p>sudo vim /etc/hosts 실행</p>
+
+<blockquote>
+<ul>
+<li>cluster를 구성할 node(각 서버)들의 ip를 hostname 으로 등록한다. (hostname은 /etc/hostname 에서 확인할 수 있다.)</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p>sudo vim /etc/elasticsearch/elasticsearch.yml 실행</p>
+
+<blockquote>
+<ul>
+<li>cluster.name: 클러스터이름 (하나의 클러스터로 연결시키기 위해서는 모든 노드가 같은 이름을 사용해야 한다.)</li>
+<li>node.name : ${HOSTNAME} (hostname을 nodename 으로 사용하도록 한다.)</li>
+<li>network.host: 0.0.0.0 (기본, 내부망으로 사용하도록 해야한다.)</li>
+<li>http.port : 9200 (기본)</li>
+<li>discovery.zen.ping.unicast.hosts: <a href="cluster%EB%A5%BC%20%EA%B5%AC%EC%84%B1%ED%95%A0%20node%EB%93%A4%EC%9D%98%20nodename(hostname)%EC%9D%84%20%EC%9E%85%EB%A0%A5%ED%95%9C%EB%8B%A4.%20ex.%20%22node01%22,%20%22node02%22,%20%22node03%22...">"", "", ...</a>
+</li>
+<li>discovery.zen.join_timeout: 15s (추가)</li>
+</ul>
+</blockquote>
+</li>
+<li>sudo vim /usr/share/elasticsearch/bin/elasticsearch 실행
+&gt; * ES_JAVA_OPTS="-Des.insecure.allow.root=true" 추가 (root 권한으로 실행할 수 있게 함)</li>
+</ul>
+
+<p>h3. 메모리 설정</p>
+
+<ul>
+<li><p>메모리 swap 방지를 해서 속도 저하를 방지한다.</p></li>
+<li>
+<p>sudo vim /etc/elasticsearch/elasticsearch.yml 실행</p>
+
+<blockquote>
+<ul>
+<li>bootstrap.mlockall: true 로 설정</li>
+</ul>
+</blockquote>
+</li>
+<li>sudo vim /etc/default/elasticsearch 실행
+&gt; * ES_HEAP_SIZE=2g (주석해제 후 수정, 만약 서버장비의 메모리가 4g라면, 2g를입력한다. 즉, 램의 50% 용량을 입력하면 된다.)
+&gt; * MAX_LOCKED_MEMORY=unlimited (주석 해제)</li>
+<li>http://localhost:9200/_nodes/process?pretty 입력 후 "mlockall"이 true 로 되어 있으면 잘 설정된 것이다. 만약 true로 안되어 있는 경우는 service 로 실행시켜서 설정 파일이 제대로 적용되지 않은 것이나 ES_HEAP_SIZE 의 값을 너무 크게 입력한 것이다.</li>
+</ul>
+
+<p>h3. 최대 open 파일 개수 설정</p>
+
+<ul>
+<li>
+<p>OS level</p>
+
+<blockquote>
+<ul>
+<li>ulimit -n (내 계정에 허용된 최대 open 파일 개수이다.)</li>
+<li>sudo vim /etc/security/limits.conf 실행 한 후 아래 내용 입력 ("계정"은 실제 elasticsearch를 실행할 계정명으로 교체)
+&gt; * root soft nofile 131070
+&gt; * root hart nofile 131070
+&gt; * root soft memlock unlimited
+&gt; * root hart memlock unlimited
+&gt; * 계정 soft nofile 131070
+&gt; * 계정 hart nofile 131070
+&gt; * 계정 soft memlock unlimited
+&gt; * 계정 hart memlock unlimited</li>
+<li>sudo vim /etc/pam.d/common-session 실행
+&gt; * session required pam_limits.so 입력</li>
+<li>sudo vim /etc/pam.d/common-session-noninteractive
+&gt; * session required pam_limits.so 입력</li>
+<li><em>재부팅</em></li>
+<li>ulimit -n 으로 수치 변경된 것 확인</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p>application level</p>
+
+<blockquote>
+<ul>
+<li>cat /proc/"PID"/limits | grep "Max open files" ("PID"는 실제 elasticsearchd의 pid로 교체)를 실행하면 elasticsearch가 열 수 있는 최대 파일 갯수가 나온다. </li>
+<li>sudo vim /etc/default/elasticsearch 실행
+&gt; * MAX_OPEN_FILES=131070 (주석 해제, 값은 128k 이다.)</li>
+<li>http://localhost:9200/_nodes/stats/process?pretty 에서 "max_file_descriptors" 확인</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p>이래도 바뀌지 않을 경우</p>
+
+<blockquote>
+<ul>
+<li>sudo vim /etc/supervisor/supervisord.conf 실행 (이 파일이 없을 수도 있다. 없으면 위에 설정 바꾼 것만으로 적용이 될 것이다.)</li>
+<li>minfds=131070 추가</li>
+<li>sudo service supervisor restart 실행
+값 바뀐 것 확인</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+<p>h3. dedicated master 설정</p>
+
+<ul>
+<li>configure dedicated master node
+&gt; * sudo vim /etc/elasticsearch/elasticsearch.yml 실행
+&gt; &gt; * node.master: true (추가)
+&gt; &gt; * node.data: false (추가)
+&gt; &gt; * discovery.zen.minimum_master_node: n (주석해제 후 n 값 설정, number of total nodes / 2 + 1, ex. 3(master+2 of data) / 2 + 1 = 2, 값은 정수로 반내림한다.)</li>
+<li>configure data nodes
+&gt; * sudo vim /etc/elasticsearch/elasticsearch.yml 실행
+&gt; &gt; * discovery.zen.minimum_master_node: n (주석해제 후 n 값 설정, number of total nodes / 2 + 1, ex. 3(master+2 of data) / 2 + 1 = 2, 값은 정수로 반내림한다.)
+&gt; &gt; * <em>아래 설정 추가하면 dedicated data node로 세팅할 수 있지만 하지 않는다. 이유는, master node에 문제가 생겼을 때, 대신 master node 역할을 수행할 수 있게 하기 위함이다.</em>
+&gt; &gt; &gt; * -node.master: false (추가)-
+&gt; &gt; &gt; * -node.data: true (추가)-</li>
+</ul>
+
+<p>h2. elasticsearch 실행, 종료 방법</p>
+
+<ul>
+<li>sudo /usr/share/elasticsearch/bin/elasticsearch -d : 데몬으로 실행</li>
+<li>sudo kil -9 pid : 데몬 종료</li>
+<li>sudo service elasticsearch start(stop, restart) : 서비스로 실행, 종료 (하지만 이 방법을 사용하면 /usr/share/elasticsearch/bin/elasticsearch 안에 들어 있는 옵션 설정이 적용되지 않는다.</li>
+</ul>
+
+<p>h2. head plugin 설치</p>
+
+<ul>
+<li>sudo /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head 실행</li>
+<li>http://localhost:9200/_plugin/head/ 접속</li>
+</ul>
+
+<p>h2. elasticsearch 접속</p>
+
+<ul>
+<li>꼭 master 노드로 데이터를 날려야하는 것은 아니고, 아무 node 에나 접속해서 데이터를 날리면 된다.</li>
+<li>chrome의 postman 이란 확장 어플리케이션을 사용하면 테스트하기가 수월하다.</li>
+<li>ex. 주소창에 localhost:9200/test/log-20160804/1 라고 입력 후 body에 jason 형태로 데이터를 입력하고 날리는 방식은 "PUT"으로 날리면 된다.</li>
+<li>
+<p>입력한 데이터의 정보는 다음과 같다.</p>
+
+<blockquote>
+<ul>
+<li>localhost:9200 (node, rdb에서의 dbserver)</li>
+<li>test (index, rdb에서의 db)</li>
+<li>log-20160804 (type, rdb에서의 table)</li>
+<li>1 (document, rdb에서의 row?)</li>
+<li>jason 의 key:value (field, rdb에서의 column?)</li>
+</ul>
+</blockquote>
+</li>
+<li><p>PUT : 특정 document를 지정하여 데이터를 저장한다. (ex. localhost:9200/test/log-20160804/1)</p></li>
+<li>POST : document 를 자동으로 생성하여 데이터를 저장한다. (ex. localhost:9200/test/log-20160804)</li>
+<li>GET : 특정 document에 대한 데이터 조회</li>
+<li>DELETE : 데이터 삭제</li>
+</ul>
+
+<p>h2. refefences</p>
+
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04">https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04">https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04</a></li>
+<li><a href="https://underyx.me/2015/05/18/raising-the-maximum-number-of-file-descriptors">https://underyx.me/2015/05/18/raising-the-maximum-number-of-file-descriptors</a></li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/luke091225/luke.github.io">Luke.GitHub.io</a> is maintained by <a href="https://github.com/luke091225">luke091225</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+    </section>
+
+  
   </body>
 </html>
